@@ -24,6 +24,7 @@ public class EmailController : ControllerBase
         {
             return Ok(new
             {
+                messageId = request.MessageId,
                 status = "Sucesso",
                 tentativas = attempts,
                 mensagem = "Email enviado com sucesso"
@@ -33,6 +34,7 @@ public class EmailController : ControllerBase
         {
             return StatusCode(500, new
             {
+                messageId = request.MessageId,
                 status = "Falha",
                 tentativas = attempts,
                 erro = error
