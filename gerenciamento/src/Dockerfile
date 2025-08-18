@@ -4,11 +4,11 @@ WORKDIR /app
 
 # Copia o arquivo .csproj e restaura as dependências
 # (Agora este comando funcionará!)
-COPY gerenciamento.csproj ./
+COPY src/gerenciamento.csproj ./
 RUN dotnet restore gerenciamento.csproj
 
 # Copia o resto da aplicação e publica
-COPY . ./
+COPY src/. ./
 RUN dotnet publish -c Release -o out
 
 # Estágio 2: Rodar a aplicação

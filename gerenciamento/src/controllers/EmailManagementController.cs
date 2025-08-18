@@ -18,8 +18,16 @@ namespace Gerenciamento.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEmail([FromBody] EmailSchedule email)
         {
-            await _emailService.AddEmailAsync(email);
-            return Ok(new { message = "Email agendado com sucesso!" });
+            try
+            {
+                await _emailService.AddEmailAsync(email);
+                return Ok(new { message = "Email agendado com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Falha ao agendar o email.", detail = ex.Message });
+            }
         }
+
     }
 }

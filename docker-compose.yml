@@ -2,10 +2,15 @@ version: '3.9'
 
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: ${FRONTEND_BACKEND_URL}
     container_name: frontend
     ports:
       - "8080:80"
+    environment:
+      - BACKEND_URL=${FRONTEND_BACKEND_URL}
     depends_on:
       - gerenciamento
     networks:
@@ -15,14 +20,16 @@ services:
     image: postgres:16
     container_name: db_gerenciamento
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME} 
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./gerenciamento/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d agendamento"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -30,20 +37,18 @@ services:
       - EmailNetwork
 
   gerenciamento:
-    build: ./gerenciamento/src
+    build:
+      context: ./gerenciamento
+      dockerfile: src/Dockerfile
     container_name: gerenciamento
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_HOST=db_gerenciamento
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=${POSTGRES_DB}
-      - DATABASE_USER=${POSTGRES_USER}
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_CONNECTION="Host=${DATABASE_HOST};Port=${DATABASE_PORT};Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD}"
+      - EMAIL_ENVIO_URL=${EMAIL_ENVIO_URL}
     depends_on:
-      db_gerenciamento:
-        condition: service_healthy
-      networks:
+      - db_gerenciamento
+    networks:
       - EmailNetwork
 
   envio:

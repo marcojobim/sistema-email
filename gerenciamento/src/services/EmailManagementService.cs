@@ -11,11 +11,13 @@ namespace Gerenciamento.Services
     {
         private readonly HttpClient _httpClient;
         private readonly AppDbContext _dbContext;
+        private readonly string _envioUrl;
 
-        public EmailManagementService(HttpClient httpClient, AppDbContext dbContext)
+        public EmailManagementService(HttpClient httpClient, AppDbContext dbContext, IConfiguration config)
         {
             _httpClient = httpClient;
             _dbContext = dbContext;
+            _envioUrl = config["EMAIL_ENVIO_URL"] ?? throw new ArgumentNullException("EMAIL_ENVIO_URL");
         }
 
         public async Task AddEmailAsync(EmailSchedule email)
@@ -40,7 +42,7 @@ namespace Gerenciamento.Services
 
                     try
                     {
-                        var response = await _httpClient.PostAsync("http://envio:3000/api/Email", content);
+                        var response = await _httpClient.PostAsync($"{_envioUrl}/api/Email", content);
                         var responseContent = await response.Content.ReadAsStringAsync();
 
                         _dbContext.EmailResponses.Add(new EmailResponse

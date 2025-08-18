@@ -1,23 +1,44 @@
-using Gerenciamento.Services;
 using Gerenciamento.db;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
-builder.Services.AddControllers();
-builder.Services.AddHttpClient<EmailManagementService>();
+
+// Recupera a string de conexão do .env (variável de ambiente)
+var connectionString = builder.Configuration["DATABASE_CONNECTION"];
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString)
+);
+
+// Adiciona serviços de controllers, Swagger, etc
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 
 var app = builder.Build();
 
-app.UseRouting();
-app.UseEndpoints(endpoints =>
+if (app.Environment.IsDevelopment())
 {
-    endpoints.MapControllers();
-});
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-var emailService = app.Services.GetRequiredService<EmailManagementService>();
-_ = Task.Run(() => emailService.MonitorAndSendEmailsAsync());
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.UseCors();
+app.MapControllers();
 
 app.Run();

@@ -5,7 +5,7 @@ namespace Gerenciamento.Models
 {
     public class EmailSchedule
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Destinatario { get; set; }
         public string Assunto { get; set; }
         public string Corpo { get; set; }

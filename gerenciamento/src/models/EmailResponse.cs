@@ -5,7 +5,7 @@ namespace Gerenciamento.Models
     public class EmailResponse
     {
         public int Id { get; set; }
-        public int EmailScheduleId { get; set; }
+        public Guid EmailScheduleId { get; set; }
         public string Status { get; set; }
         public int Attempts { get; set; }
         public string ResponseMessage { get; set; }
