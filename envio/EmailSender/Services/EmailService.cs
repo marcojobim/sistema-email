@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using EmailSender.Config;
 using EmailSender.Models;
 
 namespace EmailSender.Services
@@ -12,12 +13,12 @@ namespace EmailSender.Services
         private readonly string _smtpPassword;
         private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration config, ILogger<EmailService> logger)
+        public EmailService(SmtpSettings smtpSettings, ILogger<EmailService> logger)
         {
-            _smtpServer = config["Smtp:Server"];
-            _smtpPort = int.Parse(config["Smtp:Port"]);
-            _smtpUsername = config["Smtp:Username"];
-            _smtpPassword = config["Smtp:Password"];
+            _smtpServer = smtpSettings.Host;
+            _smtpPort = smtpSettings.Port;
+            _smtpUsername = smtpSettings.User;
+            _smtpPassword = smtpSettings.Pass;
             _logger = logger;
         }
 
@@ -27,7 +28,7 @@ namespace EmailSender.Services
             int[] delays = { 0, 5000, 25000 };
             _logger.LogInformation("Iniciando envio de email para: {To}", string.Join(", ", request.To));
 
-            for (int attempt = 1; attempt <= maxAttempts; attempt++) 
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
                 try
                 {
