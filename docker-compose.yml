@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - gerenciamento
+
+  db_gerenciamento:
+    image: postgres:15
+    container_name: db_gerenciamento
+    environment:
+      - POSTGRES_DB=agendamento
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=senha_segura
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d agendamento"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gerenciamento:
+    build: ./gerenciamento
+    container_name: gerenciamento
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_HOST=db_gerenciamento
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=agendamento
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=senha_segura
+    depends_on:
+      db_gerenciamento:
+        condition: service_healthy
+
+  envio:
+    build: ./envio
+    container_name: envio
+    ports:
+      - "5001:5000"
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+
+volumes:
+  pgdata:
+
+networks:
+  default:
+    driver: bridge

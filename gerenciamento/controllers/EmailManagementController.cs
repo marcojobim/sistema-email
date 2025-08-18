@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gerenciamento.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/emailschedules")]
     public class EmailManagementController : ControllerBase
     {
         private readonly EmailManagementService _emailService;

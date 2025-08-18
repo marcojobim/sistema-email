@@ -30,7 +30,7 @@ namespace Gerenciamento.Services
             {
                 var now = DateTime.UtcNow;
                 var emailsToSend = await _dbContext.EmailSchedules
-                    .Where(e => e.SendTime <= now && !e.IsSent)
+                    .Where(e => e.DataProgramada <= now && !e.IsSent)
                     .ToListAsync();
 
                 foreach (var email in emailsToSend)
@@ -40,7 +40,7 @@ namespace Gerenciamento.Services
 
                     try
                     {
-                        var response = await _httpClient.PostAsync("http://localhost:5072/api/Email", content);
+                        var response = await _httpClient.PostAsync("http://envio:3000/api/Email", content);
                         var responseContent = await response.Content.ReadAsStringAsync();
 
                         _dbContext.EmailResponses.Add(new EmailResponse
