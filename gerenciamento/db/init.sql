@@ -18,3 +18,5 @@ CREATE TABLE email_responses (
     response_message TEXT,           
     FOREIGN KEY (email_id) REFERENCES email_schedule(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_email_schedule_send_time ON email_schedule(send_time);
