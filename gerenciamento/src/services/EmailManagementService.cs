@@ -37,7 +37,16 @@ namespace Gerenciamento.Services
 
                 foreach (var email in emailsToSend)
                 {
-                    var json = JsonSerializer.Serialize(email);
+                    // Converte EmailSchedule para o formato que o serviço de envio espera
+                    var request = new
+                    {
+                        MessageId = email.Id.ToString(),
+                        To = new List<string> { email.Destinatario },
+                        Subject = email.Assunto,
+                        Body = email.Corpo,
+                    };
+
+                    var json = JsonSerializer.Serialize(request);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     try
