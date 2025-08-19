@@ -42,9 +42,9 @@ services:
       dockerfile: src/Dockerfile
     container_name: gerenciamento
     ports:
-      - "5000:5000"
+      - "5000:8080"
     environment:
-      - DATABASE_CONNECTION="Host=${DATABASE_HOST};Port=${DATABASE_PORT};Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD}"
+      - DATABASE_CONNECTION=Host=${DATABASE_HOST};Port=${DATABASE_PORT};Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD}
       - EMAIL_ENVIO_URL=${EMAIL_ENVIO_URL}
     depends_on:
       - db_gerenciamento
