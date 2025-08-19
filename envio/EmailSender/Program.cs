@@ -2,7 +2,7 @@ using EmailSender.Services;
 using EmailSender.Config;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:3000");
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 // Add services to the container.
 var smtpSettings = new SmtpSettings

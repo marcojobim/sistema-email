@@ -12,7 +12,8 @@ services:
     environment:
       - BACKEND_URL=${FRONTEND_BACKEND_URL}
     depends_on:
-      - gerenciamento
+      gerenciamento:
+        condition: service_started
     networks:
       - EmailNetwork
 
@@ -20,17 +21,16 @@ services:
     image: postgres:16
     container_name: db_gerenciamento
     environment:
-      - POSTGRES_DB=${DATABASE_NAME} 
+      - POSTGRES_DB=${DATABASE_NAME}
       - POSTGRES_USER=${DATABASE_USER}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./gerenciamento/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
       timeout: 5s
       retries: 5
     networks:
@@ -38,16 +38,16 @@ services:
 
   gerenciamento:
     build:
-      context: ./gerenciamento
-      dockerfile: src/Dockerfile
+      context: ./gerenciamento/src
     container_name: gerenciamento
     ports:
       - "5000:8080"
     environment:
-      - DATABASE_CONNECTION=Host=${DATABASE_HOST};Port=${DATABASE_PORT};Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD}
+      - DATABASE_CONNECTION=Host=db_gerenciamento;Port=5432;Database=${DATABASE_NAME};Username=${DATABASE_USER};Password=${DATABASE_PASSWORD}
       - EMAIL_ENVIO_URL=${EMAIL_ENVIO_URL}
     depends_on:
-      - db_gerenciamento
+      db_gerenciamento:
+        condition: service_healthy
     networks:
       - EmailNetwork
 
@@ -55,7 +55,7 @@ services:
     build: ./envio
     container_name: envio
     ports:
-      - "5001:3000"
+      - "5001:5000"
     environment:
       SMTP_SERVER: ${SMTP_SERVER}
       SMTP_PORT: ${SMTP_PORT}
@@ -69,4 +69,4 @@ volumes:
 
 networks:
   EmailNetwork:
-    driver: bridge 
+    driver: bridge
